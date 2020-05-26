@@ -1,0 +1,57 @@
+<html>
+    <head>
+        <title>Beta Chat</title>
+        <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+        <script type="text/javascript" src="/socket.io/socket.io.js"></script>
+    </head>
+    <body>
+        <form id='login'>
+            <input type="text" id='user' />
+            <button>Logar</button>
+        </form>
+        <div id='chat'>
+            <div id='mensagens'></div>
+            <input type="text" id='para' />
+            <form id='enviar'>
+            <input type='text' id='mensagem' />
+            </form>
+        </div>
+        
+        
+    </body>   
+    <script>
+        var socket = io.connect('http://localhost:3000');
+        $("#login").submit(function(e){
+        e.preventDefault();
+        if($("#user").val() !=""){
+		socket.emit("login", $("#user").val(), function(valido){
+         if(valido){
+              $("#login").hide();
+              
+         }else{
+              $("#user").val("");
+              alert("Nome já utilizado nesta sala");
+              }
+		});
+		}else{
+		alert("Digite um apelido");
+		}
+    });
+    $("#enviar").submit(function(e){
+        e.preventDefault();
+        if($("#para").val()!=""){
+            socket.emit("enviar mensagem", {msg: $("#mensagem").val(), usu: $("#para").val()}, function(){
+            $("#mensagem").val("");
+        });
+        }else alert("para quem?");
+    });
+    socket.on("atualizar mensagens", function(dados){
+        var recebido;
+        if(dados.rem == $("#user").val())
+            recebido = "<h2 style='color: green' align='right'>"+dados.msg+"</h2>";
+            else recebido = "<h2 style='color: blue' align='left'>"+dados.msg+"</h2>";
+            $("#mensagens").append(recebido);
+        
+    });
+    </script> 
+</html>
